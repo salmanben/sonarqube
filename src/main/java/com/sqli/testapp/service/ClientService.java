@@ -1,7 +1,6 @@
 package com.sqli.testapp.service;
 
 import com.sqli.testapp.dto.ClientDto;
-import com.sqli.testapp.model.Client;
 
 import java.util.List;
 
