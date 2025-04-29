@@ -2,5 +2,5 @@ projectKey=mon-test-projet-spring-boot
 serverUrl=http://localhost:9000
 serverVersion=25.4.0.105899
 dashboardUrl=http://localhost:9000/dashboard?id=mon-test-projet-spring-boot
-ceTaskId=c34fe85f-74e9-44c9-b27e-5b82edad9af5
-ceTaskUrl=http://localhost:9000/api/ce/task?id=c34fe85f-74e9-44c9-b27e-5b82edad9af5
+ceTaskId=8d3635cd-a7bb-4e5e-a38c-5cd7e527ee9c
+ceTaskUrl=http://localhost:9000/api/ce/task?id=8d3635cd-a7bb-4e5e-a38c-5cd7e527ee9c

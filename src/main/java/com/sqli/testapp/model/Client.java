@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EntityListeners(AuditingEntityListener.class)
+//@EntityListeners(AuditingEntityListener.class)
 @Entity(name="clients")
 public class Client {
     @Id
@@ -30,9 +30,9 @@ public class Client {
     @Enumerated(EnumType.STRING)
     private Role role;
     @Column(columnDefinition = "DATE DEFAULT (CURRENT_DATE)")
-    @CreatedDate
+    //@CreatedDate
     private LocalDate createdAt;
-    @LastModifiedDate
+    //@LastModifiedDate
     private LocalDate updatedAt;
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     @JsonBackReference
@@ -46,5 +46,6 @@ public class Client {
         this.age = age;
         this.role = role;
     }
+
 
 }

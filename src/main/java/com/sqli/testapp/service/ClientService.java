@@ -9,6 +9,6 @@ public interface ClientService {
     ClientDto getClientById(int id);
     ClientDto storeClient(ClientDto clientDto);
     ClientDto updateClient(int id, ClientDto clientDto);
-    void removeClient(int id);
+    boolean removeClient(int id);
 
 }

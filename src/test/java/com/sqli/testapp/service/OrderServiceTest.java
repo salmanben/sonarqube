@@ -7,6 +7,8 @@ import com.sqli.testapp.model.Order;
 import com.sqli.testapp.repository.ClientRepository;
 import com.sqli.testapp.repository.OrderRepository;
 import com.sqli.testapp.service.imp.OrderServiceImp;
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -74,7 +76,7 @@ public class OrderServiceTest {
         OrderDto orderDto = new OrderDto(1, 100.0f, 1);
         when(clientRepository.findById(1)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             orderService.storeOrder(orderDto);
         });
         assertEquals("Client not found with id: 1", exception.getMessage());
@@ -104,7 +106,7 @@ public class OrderServiceTest {
         when(orderRepository.findById(id)).thenReturn(Optional.of(new Order()));
         when(clientRepository.findById(orderDto.getClientId())).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             orderService.updateOrder(id, orderDto);
         });
         assertEquals("Client not found with id: 1", exception.getMessage());
@@ -116,7 +118,7 @@ public class OrderServiceTest {
         OrderDto orderDto = new OrderDto(1, 100.0f, 1);
         when(orderRepository.findById(id)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             orderService.updateOrder(id, orderDto);
         });
         assertEquals("Order not found with id: 1", exception.getMessage());
@@ -125,10 +127,23 @@ public class OrderServiceTest {
     @Test
     void testRemoveOrder() {
         int id = 1;
+        when(orderRepository.findById(id)).thenReturn(Optional.of(new Order()));
         doNothing().when(orderRepository).deleteById(id);
 
-        orderService.removeOrder(id);
+        boolean isDeleted =  orderService.removeOrder(id);
 
+        Assertions.assertTrue(isDeleted);
         verify(orderRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    void testRemoveOrderNotFound() {
+        int id = 1;
+        when(orderRepository.findById(id)).thenReturn(Optional.empty());
+
+        boolean isDeleted =  orderService.removeOrder(id);
+
+        verify(clientRepository, times(0)).deleteById(id);
+        Assertions.assertFalse(isDeleted);
     }
 }

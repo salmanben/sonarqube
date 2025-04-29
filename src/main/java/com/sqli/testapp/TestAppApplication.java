@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@EnableJpaAuditing
+//@EnableJpaAuditing
 @EnableCaching
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class TestAppApplication {

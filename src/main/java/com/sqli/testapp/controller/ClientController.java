@@ -20,51 +20,65 @@ import java.util.stream.Collectors;
 public class ClientController {
     private final ClientService clientService;
 
-    @GetMapping("")
+    private static final String STATUS = "status";
+    private static final String MESSAGE = "message";
+    private static final String ERROR = "error";
+    private static final String SUCCESS = "success";
+
+    @GetMapping
     public List<ClientDto> getAll() {
         return clientService.getAllClients();
     }
 
     @GetMapping("/{id}")
-    public ClientDto getById(@PathVariable int id) {
-        return clientService.getClientById(id);
+    public ResponseEntity<ClientDto> getById(@PathVariable int id) {
+        ClientDto clientDto =  clientService.getClientById(id);
+        if(clientDto == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(clientDto);
     }
 
-    @PostMapping("/store")
+    @PostMapping
     public ResponseEntity<Map<String, Object>> store(@Valid @RequestBody ClientDto clientDto, BindingResult bindingResult) {
         Map<String, Object> response = new HashMap<>();
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(e -> e.getDefaultMessage()).collect(Collectors.toList());
-            response.put("status", "error");
-            response.put("message", errors);
+            response.put(STATUS, ERROR);
+            response.put(MESSAGE, errors);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         ClientDto savedClientDto = clientService.storeClient(clientDto);
-        response.put("status", "success");
-        response.put("message", savedClientDto);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        response.put(STATUS, SUCCESS);
+        response.put(MESSAGE, savedClientDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@Valid @RequestBody ClientDto clientDto, BindingResult bindingResult,
                                                       @PathVariable int id) {
         Map<String, Object> response = new HashMap<>();
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(e -> e.getDefaultMessage()).collect(Collectors.toList());
-            response.put("status", "error");
-            response.put("message", errors);
+            response.put(STATUS, ERROR);
+            response.put(MESSAGE, errors);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         ClientDto updatedClientDto = clientService.updateClient(id, clientDto);
-        response.put("status", "success");
-        response.put("message", updatedClientDto);
+        response.put(STATUS, SUCCESS);
+        response.put(MESSAGE, updatedClientDto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable int id) {
-        clientService.removeClient(id);
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        boolean clientRemoved = clientService.removeClient(id);
+        if (clientRemoved) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 }

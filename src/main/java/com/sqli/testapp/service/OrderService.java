@@ -10,6 +10,6 @@ public interface OrderService {
     Order getOrderById(int id);
     Order storeOrder(OrderDto orderDto);
     Order updateOrder(int id, OrderDto orderDto);
-    void removeOrder(int id);
+    boolean removeOrder(int id);
 
 }

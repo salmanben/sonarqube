@@ -1,10 +1,12 @@
 package com.sqli.testapp.service.imp;
 
 import com.sqli.testapp.dto.ClientDto;
+import com.sqli.testapp.exception.EmailAlreadyExistsException;
 import com.sqli.testapp.mapper.ClientMapper;
 import com.sqli.testapp.model.Client;
 import com.sqli.testapp.repository.ClientRepository;
 import com.sqli.testapp.service.ClientService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -53,7 +55,7 @@ public class ClientServiceImp implements ClientService {
     public ClientDto storeClient(ClientDto clientDto) {
         Client client = clientMapper.dtoRequestToEntity(clientDto);
         if (doesEmailExist(clientDto.getEmail())) {
-            throw new IllegalArgumentException("Email already exists.");
+            throw new EmailAlreadyExistsException("Email already exists.");
         }
         client.setPassword(passwordEncoder.encode(clientDto.getPassword()));
         client = clientRepository.save(client);
@@ -66,11 +68,11 @@ public class ClientServiceImp implements ClientService {
     public ClientDto updateClient(int id, ClientDto clientDto) {
         Optional<Client> clientOptional = clientRepository.findById(id);
         if(!clientOptional.isPresent()){
-            throw new IllegalArgumentException("Client not found with id: " + id);
+            throw new EntityNotFoundException("Client not found with id: " + id);
         }
         Client client = clientOptional.get();
         if (doesEmailExist(clientDto.getEmail(), id)) {
-            throw new IllegalArgumentException("Email already exists.");
+            throw new EmailAlreadyExistsException("Email already exists.");
         }
         client.setPassword(passwordEncoder.encode(clientDto.getPassword()));
         client.setEmail(clientDto.getEmail());
@@ -86,8 +88,12 @@ public class ClientServiceImp implements ClientService {
     @Caching(evict={@CacheEvict(value="allProducts", allEntries = true),
             @CacheEvict(value="products", key="#id")})
 
-    public void removeClient(int id) {
+    public boolean removeClient(int id) {
+        Optional<Client> clientOptional = clientRepository.findById(id);
+        if(!clientOptional.isPresent())
+            return false;
         clientRepository.deleteById(id);
+        return true;
     }
 
     private boolean doesEmailExist(String email) {

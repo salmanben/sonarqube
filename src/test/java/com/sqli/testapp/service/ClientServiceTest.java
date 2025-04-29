@@ -1,11 +1,13 @@
 package com.sqli.testapp.service;
 
 import com.sqli.testapp.dto.ClientDto;
+import com.sqli.testapp.exception.EmailAlreadyExistsException;
 import com.sqli.testapp.mapper.ClientMapper;
 import com.sqli.testapp.model.Client;
 import com.sqli.testapp.model.Role;
 import com.sqli.testapp.repository.ClientRepository;
 import com.sqli.testapp.service.imp.ClientServiceImp;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,7 +92,7 @@ public class ClientServiceTest {
 
         when(clientRepository.findByEmail(clientDto.getEmail())).thenReturn(existingClient);
 
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        EmailAlreadyExistsException exception = Assertions.assertThrows(EmailAlreadyExistsException.class, () -> {
             clientService.storeClient(clientDto);
         });
         Assertions.assertEquals("Email already exists.", exception.getMessage());
@@ -133,7 +135,7 @@ public class ClientServiceTest {
         when(clientRepository.findById(id)).thenReturn(Optional.of(existingClient));
         when(clientRepository.findByEmail(clientDto.getEmail())).thenReturn(anotherClient);
 
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        EmailAlreadyExistsException exception = Assertions.assertThrows(EmailAlreadyExistsException.class, () -> {
             clientService.updateClient(id, clientDto);
         });
         Assertions.assertEquals("Email already exists.", exception.getMessage());
@@ -146,7 +148,7 @@ public class ClientServiceTest {
 
         when(clientRepository.findById(id)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        EntityNotFoundException exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
             clientService.updateClient(id, clientDto);
         });
         Assertions.assertEquals("Client not found with id: " + id, exception.getMessage());
@@ -155,12 +157,29 @@ public class ClientServiceTest {
     @Test
     public void testRemoveClient() {
         int id = 1;
+        Client client = new Client();
+        when(clientRepository.findById(id)).thenReturn(Optional.of(client));
         doNothing().when(clientRepository).deleteById(id);
 
-        clientService.removeClient(id);
+        boolean result = clientService.removeClient(id);
 
         verify(clientRepository, times(1)).deleteById(id);
+        Assertions.assertTrue(result);
     }
+
+    @Test
+    public void testRemoveClientNotFound() {
+        int id = 100;
+        when(clientRepository.findById(id)).thenReturn(Optional.empty());
+
+        boolean result = clientService.removeClient(id);
+
+        verify(clientRepository, times(0)).deleteById(id);
+        Assertions.assertFalse(result);
+    }
+
+
+
 
 
 }
