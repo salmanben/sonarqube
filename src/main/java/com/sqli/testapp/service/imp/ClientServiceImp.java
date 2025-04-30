@@ -64,6 +64,7 @@ public class ClientServiceImp implements ClientService {
 
     @CacheEvict(value="allProducts", allEntries = true)
     @CachePut(value="products", key="#id")
+    @Transactional
     @Override
     public ClientDto updateClient(int id, ClientDto clientDto) {
         Optional<Client> clientOptional = clientRepository.findById(id);
@@ -88,6 +89,7 @@ public class ClientServiceImp implements ClientService {
     @Caching(evict={@CacheEvict(value="allProducts", allEntries = true),
             @CacheEvict(value="products", key="#id")})
 
+    @Transactional
     public boolean removeClient(int id) {
         Optional<Client> clientOptional = clientRepository.findById(id);
         if(!clientOptional.isPresent())

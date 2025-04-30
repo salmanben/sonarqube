@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -24,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ClientController.class)
+@SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 public class ClientControllerTest {
 
@@ -35,6 +38,7 @@ public class ClientControllerTest {
     @MockitoBean
     private ClientServiceImp clientService;
 
+    @WithUserDetails("client")
     @Test
     public void testGetAll() throws Exception {
         ClientDto clientDto1 = new ClientDto(1, "Salman", "salman@example.com", "password", 27, Role.CLIENT);
@@ -51,6 +55,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$[0].email", is(clientDtos.get(0).getEmail())));
     }
 
+    @WithUserDetails(value = "client")
     @Test
     public void testGetById() throws Exception {
         ClientDto clientDto = new ClientDto(1, "Salman", "salman@example.com", "password", 27, Role.CLIENT);
@@ -66,6 +71,7 @@ public class ClientControllerTest {
 
     }
 
+    @WithUserDetails(value = "client")
     @Test
     public void testGetByIdNotFound() throws Exception {
         int notExistingId = 100000000;
@@ -77,6 +83,7 @@ public class ClientControllerTest {
         response.andExpect(status().isNotFound());
     }
 
+    @WithUserDetails(value = "client")
     @Test
     public void testStore() throws Exception {
         ClientDto clientRequestDto = new ClientDto();
@@ -104,6 +111,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.message.updatedAt", is(savedClientDto.getUpdatedAt().toString())));
     }
 
+    @WithUserDetails(value = "client")
     @Test
     public void testUpdate() throws Exception {
         int id = 1;
@@ -133,6 +141,7 @@ public class ClientControllerTest {
 
     }
 
+    @WithUserDetails(value = "client")
     @Test
     public void testUpdateNotFound() throws Exception {
         int notExistingId = 1000000000;
@@ -153,6 +162,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.status", is("error")));
     }
 
+    @WithUserDetails(value = "client")
     @Test
     public void testDelete() throws Exception {
         int id = 1;
@@ -164,6 +174,7 @@ public class ClientControllerTest {
         response.andExpect(status().isNoContent());
     }
 
+    @WithUserDetails(value = "client")
     @Test
     public void testDeleteNotFound() throws Exception {
         int notExistingId = 100000000;

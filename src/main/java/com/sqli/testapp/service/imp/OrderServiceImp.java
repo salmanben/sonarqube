@@ -10,6 +10,7 @@ import com.sqli.testapp.service.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,16 +23,19 @@ public class OrderServiceImp implements OrderService {
     private final ClientRepository clientRepository;
 
     @Override
+    @Transactional
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
     @Override
+    @Transactional
     public Order getOrderById(int id) {
         return orderRepository.findById(id).orElse(null);
     }
 
     @Override
+    @Transactional
     public Order storeOrder(OrderDto orderDto) {
         Optional<Client> clientOptional = clientRepository.findById(orderDto.getClientId());
         if (!clientOptional.isPresent()) {
@@ -44,6 +48,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
+    @Transactional
     public Order updateOrder(int id, OrderDto orderDto) {
         Optional<Order> orderOptional = orderRepository.findById(id);
         if(!orderOptional.isPresent()){
@@ -61,6 +66,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
+    @Transactional
     public boolean removeOrder(int id) {
         Optional<Order> orderOptional = orderRepository.findById(id);
         if (!orderOptional.isPresent()) {

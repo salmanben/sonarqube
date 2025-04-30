@@ -95,6 +95,23 @@ public class OrderControllerTest {
     }
 
     @Test
+    public void testStoreInvalidData() throws Exception {
+        OrderDto orderDto = new OrderDto();
+        Client client = new Client(1, "Salman", "salman@example.com", "12345", 28, Role.CLIENT);
+        orderDto.setClientId(client.getId());
+        List<String> errors = new ArrayList<>();
+        errors.add("Amount is required");
+
+        ResultActions response = mockMvc.perform(post("/api/v1/orders")
+                .content(objectMapper.writeValueAsString(orderDto))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        response.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(errors)));
+    }
+
+    @Test
     public void testStoreClientNotFound() throws Exception {
         OrderDto orderDto = new OrderDto();
         orderDto.setAmount(17f);
